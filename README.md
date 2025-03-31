@@ -1,3 +1,4 @@
+
 # Automating Log File Transfer from EC2 to S3 using AWS Lambda and SSM
 
 ## Overview
@@ -66,8 +67,52 @@ Before proceeding, make sure you have:
 
 For **Amazon Linux**:
 
-```sh
+```bash
 sudo yum install -y amazon-ssm-agent
 sudo systemctl enable amazon-ssm-agent
 sudo systemctl start amazon-ssm-agent
 ```
+
+For **Ubuntu**:
+
+```bash
+sudo snap install amazon-ssm-agent
+sudo systemctl enable amazon-ssm-agent
+sudo systemctl start amazon-ssm-agent
+```
+
+Verify SSM Agent is running:
+
+```bash
+sudo systemctl status amazon-ssm-agent
+```
+
+## **Step 4: Deploy the Lambda Function**
+
+1. Open **AWS Lambda Console** → Click **Create Function**.
+2. Select **Author from Scratch** and set:
+   * **Function Name**: `EC2ToS3LogTransfer`
+   * **Runtime**: Python 3.x
+   * **Execution Role**: Use **Lambda-SSM-S3-Role** (created in Step 2).
+3. Upload the `lambda_function.py` script from this repository.
+4. Click **Deploy**.
+
+## **Step 5: Automate Execution Using EventBridge**
+
+1. Open **AWS EventBridge Console** → Go to **Rules** → Click **Create Rule**.
+2. Set:
+   * **Rule Name**: `EC2LogTransfer`
+   * **Event Source**: Schedule
+   * **Fixed Rate**: Every **1 day** OR **CRON expression** (e.g., `30 23 * * ? *` for 11:30 PM).
+3. Choose **Target** → Select **Lambda Function**.
+4. Select the **EC2ToS3LogTransfer** function.
+5. Click **Create**.
+
+## **Step 6: Test and Verify**
+
+✅ **Trigger Lambda Function manually** from AWS Console.  
+✅ **Check the S3 Bucket** to see if the log file is uploaded.  
+✅ **If issues occur, check:**
+* **Lambda Logs** in **AWS CloudWatch**
+* **SSM Agent Logs** on EC2 (`/var/log/amazon/ssm/amazon-ssm-agent.log`)
+* **IAM permissions** for EC2 and Lambda
