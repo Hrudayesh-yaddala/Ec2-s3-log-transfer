@@ -29,7 +29,10 @@ Open a terminal and run:
 ```bash
 nano /home/ubuntu/upload_log.sh 
 
-# Paste the following:
+
+Paste the following:
+
+
 #!/bin/bash
 
 # Date format
